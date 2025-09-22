@@ -1,31 +1,19 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Heatmap 5x5</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 100px);
-      grid-template-rows: repeat(5, 100px);
-      gap: 5px;
-      justify-content: center;
-      margin-top: 40px;
-    }
-    .cell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: white;
-    }
-  </style>
-</head>
-<body>
-  <h1>Matriz 5x5 de Risco Psicossocial</h1>
-  <div id="heatmap" class="grid"></div>
-
-  <script src="index.js"></script>
-</body>
-</html>
+<div style="display:flex; justify-content:center; margin-top:20px;">
+  <div>
+    <!-- Y labels -->
+    <div style="writing-mode: vertical-rl; transform: rotate(180deg); font-weight:bold; margin-right:10px;">
+      Probabilidade →
+    </div>
+  </div>
+  <div>
+    <div class="grid" id="heatmap"></div>
+    <!-- X labels -->
+    <div style="display:grid; grid-template-columns: repeat(5, 100px); justify-content:center; margin-top:5px; font-weight:bold;">
+      <div>Insignificante</div>
+      <div>Leve</div>
+      <div>Moderada</div>
+      <div>Grave</div>
+      <div>Crítica</div>
+    </div>
+  </div>
+</div>
