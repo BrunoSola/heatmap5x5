@@ -1,24 +1,8 @@
 {
-  "name": "Matriz 5x5 Risco Psicossocial",
-  "logoUrl": "https://dummyimage.com/96x96/6b46c1/ffffff.png&text=5x5",
-  "organization": "Mentali",
-  "description": "Heatmap 5x5 Probabilidade × Severidade com cores ajustadas",
-  "components": [{
-    "id": "heatmap5x5",
-    "name": "Heatmap 5x5",
-    "iconUrl": "https://dummyimage.com/24x24/6b46c1/ffffff.png&text=H",
-    "description": "Mostra a matriz 5x5 com regras de cor",
-    "resource": "index.html",
-    "fields": {
-      "dimensions": ["rowDim", "colDim"],
-      "metrics": ["value"]
-    },
-    "options": {
-      "green": {"label": "Cor: Verde", "type": "COLOR", "default": "#43A047"},
-      "yellow": {"label": "Cor: Amarelo", "type": "COLOR", "default": "#FBC02D"},
-      "orange": {"label": "Cor: Laranja", "type": "COLOR", "default": "#FB8C00"},
-      "red": {"label": "Cor: Vermelho", "type": "COLOR", "default": "#E53935"},
-      "showLabels": {"label": "Mostrar rótulos", "type": "CHECKBOX", "default": true}
-    }
-  }]
+  "name": "Heatmap 5x5",
+  "short_name": "Heatmap",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4a148c"
 }
