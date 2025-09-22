@@ -1,19 +1,12 @@
-<div style="display:flex; justify-content:center; margin-top:20px;">
-  <div>
-    <!-- Y labels -->
-    <div style="writing-mode: vertical-rl; transform: rotate(180deg); font-weight:bold; margin-right:10px;">
-      Probabilidade →
-    </div>
-  </div>
-  <div>
-    <div class="grid" id="heatmap"></div>
-    <!-- X labels -->
-    <div style="display:grid; grid-template-columns: repeat(5, 100px); justify-content:center; margin-top:5px; font-weight:bold;">
-      <div>Insignificante</div>
-      <div>Leve</div>
-      <div>Moderada</div>
-      <div>Grave</div>
-      <div>Crítica</div>
-    </div>
-  </div>
-</div>
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  html,body,#root { width:100%; height:100%; margin:0; }
+  .axis { fill:#444; font: 12px/1.2 Inter, Roboto, Arial, sans-serif; font-weight:600; }
+  .cell { stroke:#fff; stroke-width:2; }
+  .lbl  { fill:#111; font: 14px/1.2 Inter, Roboto, Arial, sans-serif; font-weight:700; text-anchor:middle; dominant-baseline:middle; }
+</style>
+<div id="root"></div>
+<script src="https://unpkg.com/@google/dscc@1.0.4/dist/dscc.min.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="index.js"></script>

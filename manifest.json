@@ -1,8 +1,22 @@
 {
-  "name": "Heatmap 5x5",
-  "short_name": "Heatmap",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4a148c"
+  "name": "Matriz 5x5 Risco Psicossocial",
+  "logoUrl": "https://brunosola.github.io/heatmap5x5/logo.png",
+  "organization": "Mentali",
+  "description": "Heatmap 5x5 Probabilidade × Severidade (0,2,3,4,5 x 1..5) com cores ajustadas.",
+  "components": [{
+    "id": "heatmap5x5",
+    "name": "Heatmap 5x5",
+    "iconUrl": "https://brunosola.github.io/heatmap5x5/icon.png",
+    "description": "Visualização da matriz 5x5",
+    "resource": "index.html",
+    "fields": { "dimensions": ["rowDim","colDim"], "metrics": ["value"] },
+    "options": {
+      "green":  { "label": "Cor Verde",   "type": "COLOR",   "default": "#2e7d32" },
+      "yellow": { "label": "Cor Amarelo", "type": "COLOR",   "default": "#fdd835" },
+      "orange": { "label": "Cor Laranja", "type": "COLOR",   "default": "#fb8c00" },
+      "red":    { "label": "Cor Vermelho","type": "COLOR",   "default": "#e53935" },
+      "darkred":{ "label": "Cor Verm. Escuro","type":"COLOR","default":"#b71c1c" },
+      "showLabels": { "label": "Mostrar valores", "type": "CHECKBOX", "default": true }
+    }
+  }]
 }
