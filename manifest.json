@@ -5,8 +5,6 @@
       "name": "Matriz 5x5 Risco Psicossocial",
       "organization": "Mentali",
       "description": "Heatmap 5x5 Probabilidade x Severidade (0..5 x 1..5) com cores ajustadas.",
-      "logoUrl": "https://brunosola.github.io/heatmap5x5/logo.png",
-      "iconUrl": "https://brunosola.github.io/heatmap5x5/icon.png",
       "resource": "index.html",
       "fields": {
         "dimensions": ["rowDim", "colDim"],
