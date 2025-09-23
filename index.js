@@ -1,104 +1,124 @@
-/* Espera 2 dimensões e 1 métrica:
-   - Dimensão (linhas)  = Probabilidade (ex.: "1 – Nunca aconteceu", "2 – Baixa...", ...)
-   - Dimensão (colunas) = Severidade (ex.: "Insignificante","Leve","Moderada","Grave","Crítica")
-   - Métrica            = risco_valor_5x5 (ou MAX(risco_valor_5x5))
-*/
-const el = document.getElementById('root');
+/* global dscc */
 
-const orderAlphaNum = (arr) => [...new Set(arr)].sort((a,b)=> a.localeCompare(b,undefined,{numeric:true}));
-
-function toPivot(table) {
-  const rows = orderAlphaNum(table.map(r => r.dimensionValues[0].value));
-  const cols = orderAlphaNum(table.map(r => r.dimensionValues[1].value));
-  const map = new Map();
-  table.forEach(r=>{
-    const row = r.dimensionValues[0].value;
-    const col = r.dimensionValues[1].value;
-    const val = Number(r.metricValues[0].value);
-    map.set(`${row}||${col}`, isFinite(val) ? val : 0);
-  });
-  return { rows, cols, get:(r,c)=> map.get(`${r}||${c}`) ?? 0 };
+// Utilitário: cria um mapa de cores por faixa
+function colorFor(val, opts) {
+  // faixas típicas da tua matriz 5x5 (ajuste se quiser)
+  if (val <= 3) return opts.green;
+  if (val <= 8) return opts.yellow;
+  if (val <= 16) return opts.orange;
+  if (val <= 20) return opts.red;
+  return opts.darkred; // 25 etc.
 }
 
-function color(val, s) {
-  // Regras da sua matriz 5x5
-  if (val === 0) return s.green;
-  if (val <= 4)  return s.yellow;
-  if (val <= 10) return s.orange;
-  if (val <= 15) return s.red;
-  return s.darkred;
+function getOptionsFromStyle(style) {
+  // Defaults batendo com o manifest.json
+  const defaults = {
+    green:   '#2e7d32',
+    yellow:  '#fdd835',
+    orange:  '#fbc02d',
+    red:     '#e53935',
+    darkred: '#b71c1c',
+    showLabels: true,
+  };
+
+  const o = Object.assign({}, defaults);
+  if (style) {
+    // cores
+    if (style.green && style.green.color) o.green = style.green.color;
+    if (style.yellow && style.yellow.color) o.yellow = style.yellow.color;
+    if (style.orange && style.orange.color) o.orange = style.orange.color;
+    if (style.red && style.red.color) o.red = style.red.color;
+    if (style.darkred && style.darkred.color) o.darkred = style.darkred.color;
+    // checkbox
+    if (typeof style.showLabels?.value === 'boolean') {
+      o.showLabels = style.showLabels.value;
+    }
+  }
+  return o;
 }
 
 function draw(data) {
-  const table = data.tables.DEFAULT || [];
-  const style = {
-    green:   data.style.green   || '#2e7d32',
-    yellow:  data.style.yellow  || '#fdd835',
-    orange:  data.style.orange  || '#fb8c00',
-    red:     data.style.red     || '#e53935',
-    darkred: data.style.darkred || '#b71c1c',
-    showLabels: data.style.showLabels !== false
-  };
+  const root = document.getElementById('root');
+  root.innerHTML = '';
 
-  const p = toPivot(table);
-  el.innerHTML = '';
-  const W = el.clientWidth || 900, H = el.clientHeight || 600;
-  const m = { top: 60, right: 20, bottom: 50, left: 220 };
-  const gridW = Math.max(300, W - m.left - m.right);
-  const gridH = Math.max(300, H - m.top - m.bottom);
-  const cw = gridW / p.cols.length;
-  const ch = gridH / p.rows.length;
+  const opts = getOptionsFromStyle(data.style);
 
-  const svg = d3.select(el).append('svg').attr('width', W).attr('height', H);
+  // Espera tabela DEFAULT com 3 colunas: rowDim, colDim, value
+  const rows = (data && data.tables && data.tables.DEFAULT) ? data.tables.DEFAULT : [];
+  if (!rows.length) {
+    root.innerHTML = '<div class="labels" style="margin:24px">Sem dados</div>';
+    return;
+  }
 
-  // Título opcional (vazio – o Looker costuma colocar título do componente)
-  // svg.append('text').attr('x', W/2).attr('y', 28).attr('class','axis').attr('text-anchor','middle').text('Matriz 5x5 de Risco Psicossocial');
+  // Extrai valores (normalmente virão como strings)
+  const parsed = rows.map(r => ({
+    row: Number(r[0]?.rawValue ?? r[0]?.value ?? r[0]),
+    col: Number(r[1]?.rawValue ?? r[1]?.value ?? r[1]),
+    val: Number(r[2]?.rawValue ?? r[2]?.value ?? r[2])
+  }));
 
-  // Rótulos Y (Probabilidade)
-  const probTitle = 'Probabilidade →';
-  svg.append('text')
-     .attr('x', m.left - 10).attr('y', m.top - 28)
-     .attr('class','axis').attr('text-anchor','end').text(probTitle);
+  // Ordena e cria conjunto de labels 1..5
+  const rowsSet = [...new Set(parsed.map(x => x.row))].sort((a,b)=>a-b);
+  const colsSet = [...new Set(parsed.map(x => x.col))].sort((a,b)=>a-b);
 
-  p.rows.forEach((r, i) => {
-    svg.append('text')
-      .attr('x', m.left - 10)
-      .attr('y', m.top + i*ch + ch/2)
-      .attr('class','axis')
-      .attr('text-anchor','end')
-      .text(r);
+  // Monta um dicionário para acessar rápido [row][col] = val
+  const grid = {};
+  for (const r of rowsSet) {
+    grid[r] = {};
+    for (const c of colsSet) grid[r][c] = null;
+  }
+  for (const item of parsed) grid[item.row][item.col] = item.val;
+
+  // Desenha tabela simples (linhas = prob, colunas = severidade)
+  const table = document.createElement('table');
+
+  // Cabeçalho (col labels)
+  const thead = document.createElement('thead');
+  const htr = document.createElement('tr');
+  // canto vazio
+  const thEmpty = document.createElement('td');
+  thEmpty.className = 'labels';
+  htr.appendChild(thEmpty);
+  // col labels
+  colsSet.forEach(c => {
+    const th = document.createElement('td');
+    th.className = 'labels';
+    th.style.background = 'transparent';
+    th.style.border = 'none';
+    th.style.color = '#333';
+    th.textContent = c; // 1..5
+    htr.appendChild(th);
   });
+  thead.appendChild(htr);
+  table.appendChild(thead);
 
-  // Rótulos X (Severidade)
-  const sevTitle = 'Severidade →';
-  svg.append('text')
-     .attr('x', m.left + gridW).attr('y', m.top - 28)
-     .attr('class','axis').attr('text-anchor','end').text(sevTitle);
+  // Corpo: para cada linha (probabilidade)
+  const tbody = document.createElement('tbody');
+  rowsSet.forEach(r => {
+    const tr = document.createElement('tr');
 
-  p.cols.forEach((c, j) => {
-    svg.append('text')
-      .attr('x', m.left + j*cw + cw/2)
-      .attr('y', m.top - 8)
-      .attr('class','axis')
-      .attr('text-anchor','middle')
-      .text(c);
-  });
+    const rowLab = document.createElement('td');
+    rowLab.className = 'labels';
+    rowLab.style.background = 'transparent';
+    rowLab.style.border = 'none';
+    rowLab.style.color = '#333';
+    rowLab.textContent = r; // 1..5
+    tr.appendChild(rowLab);
 
-  // Células
-  p.rows.forEach((r, i) => {
-    p.cols.forEach((c, j) => {
-      const v = p.get(r,c);
-      const x = m.left + j*cw, y = m.top + i*ch;
-      svg.append('rect')
-        .attr('x', x).attr('y', y).attr('width', cw).attr('height', ch)
-        .attr('class','cell').attr('fill', color(v, style));
-      if (style.showLabels) {
-        svg.append('text')
-          .attr('x', x + cw/2).attr('y', y + ch/2)
-          .attr('class','lbl').text(v);
-      }
+    colsSet.forEach(c => {
+      const td = document.createElement('td');
+      const value = grid[r][c];
+      td.style.background = colorFor(Number(value || 0), opts);
+      td.textContent = opts.showLabels && value != null ? String(value) : '';
+      tr.appendChild(td);
     });
+
+    tbody.appendChild(tr);
   });
+  table.appendChild(tbody);
+
+  root.appendChild(table);
 }
 
+// Assina os dados do Looker Studio
 dscc.subscribeToData(draw, { transform: dscc.tableTransform });
