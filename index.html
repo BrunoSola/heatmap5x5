@@ -1,12 +1,25 @@
-<!doctype html>
-<meta charset="utf-8">
-<style>
-  html,body,#root { width:100%; height:100%; margin:0; }
-  .axis { fill:#444; font: 12px/1.2 Inter, Roboto, Arial, sans-serif; font-weight:600; }
-  .cell { stroke:#fff; stroke-width:2; }
-  .lbl  { fill:#111; font: 14px/1.2 Inter, Roboto, Arial, sans-serif; font-weight:700; text-anchor:middle; dominant-baseline:middle; }
-</style>
-<div id="root"></div>
-<script src="https://unpkg.com/@google/dscc@1.0.4/dist/dscc.min.js"></script>
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="index.js"></script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Heatmap 5x5</title>
+
+    <!-- Runtime do Looker Studio (obrigatório) -->
+    <script src="https://www.gstatic.com/datastudio/vis/2.0/dscc.min.js"></script>
+
+    <style>
+      html, body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+      #root { width: 100%; height: 100%; display: flex; justify-content: center; }
+      table { border-collapse: collapse; }
+      td {
+        width: 80px; height: 80px; text-align: center; vertical-align: middle;
+        font-weight: 700; color: #fff; border: 2px solid #fff; border-radius: 6px;
+      }
+      .labels { color:#333; font-weight:600; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="index.js"></script>
+  </body>
+</html>
